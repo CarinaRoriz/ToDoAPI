@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build-env
 
 RUN mkdir /app
 WORKDIR /app
@@ -9,5 +9,8 @@ RUN dotnet restore
 COPY . .
 RUN dotnet publish -c Release -o out
 
-EXPOSE 5000/tcp
-CMD ["dotnet", "out/dotnetapp.dll"]
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
+
+WORKDIR /app
+COPY --from=build-env /app/out .
+ENTRYPOINT ["dotnet", "TodoApi.dll"]
